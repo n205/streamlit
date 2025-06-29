@@ -5,9 +5,6 @@ st.set_page_config(page_title="Value Matching App", layout="wide")
 
 st.title("🧠 価値観マッチングスコアビューア")
 
-# スプレッドシートのURL（あとで埋め込む想定）
-sheet_url = st.text_input("Google SheetsのURLを入力してください")
-
 # 仮のテーブル（動作確認用）
 dummy_data = {
     "Company": ["A社", "B社", "C社"],
