@@ -26,6 +26,14 @@ st.dataframe(df.sort_values("Score", ascending=False), use_container_width=True)
 # Stripeの支払いリンク
 payment_url = 'https://buy.stripe.com/28E4gzevx5YV2Lv1VeeZ201'
 
-# 購入ボタンを設置
-if st.button('📄 500円でレポートを購入する'):
-    st.markdown(f'[こちらをクリックして決済ページへ移動]({payment_url})', unsafe_allow_html=True)
+# JavaScriptで遷移
+st.markdown(
+    f"""
+    <form action="{payment_url}" method="get">
+        <button style="padding: 0.75em 1.5em; font-size: 16px; background-color: #635BFF; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            📄 500円で購入する
+        </button>
+    </form>
+    """,
+    unsafe_allow_html=True
+)
