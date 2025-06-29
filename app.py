@@ -26,13 +26,6 @@ st.dataframe(df.sort_values("Score", ascending=False), use_container_width=True)
 # Stripeの支払いリンク
 payment_url = 'https://buy.stripe.com/28E4gzevx5YV2Lv1VeeZ201'
 
-# Streamlitボタンで遷移処理をトリガー
-if st.button('📄 500円で購入する'):
-    st.markdown(
-        f"""
-        <script>
-            window.location.href = "{payment_url}";
-        </script>
-        """,
-        unsafe_allow_html=True
-    )
+# 購入ボタンを設置
+if st.button('📄 500円でレポートを購入する'):
+    st.markdown(f'[こちらをクリックして決済ページへ移動]({payment_url})', unsafe_allow_html=True)
