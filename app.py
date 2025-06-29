@@ -25,3 +25,10 @@ df = pd.DataFrame(dummy_data)
 # スコア順で表示
 st.subheader("スコアの高い順")
 st.dataframe(df.sort_values("Score", ascending=False), use_container_width=True)
+
+# Stripeの支払いリンク
+payment_url = 'https://buy.stripe.com/28E4gzevx5YV2Lv1VeeZ201'
+
+# 購入ボタンを設置
+if st.button('📄 500円でレポートを購入する'):
+    st.markdown(f'[こちらをクリックして決済ページへ移動]({payment_url})', unsafe_allow_html=True)
