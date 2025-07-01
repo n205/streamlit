@@ -5,6 +5,27 @@ import numpy as np
 st.set_page_config(page_title="Value Matching App", layout="wide")
 st.title("🧭 価値観マッチング：あなたに合う企業は？")
 
+# 企業の仮データ
+company_data = [
+    {'Company': 'A社', 'Value': '本質と静けさを重視', 'Vector': np.array([-1, -2, -2]), 'URL': 'https://example.com/a'},
+    {'Company': 'B社', 'Value': 'スピードと活気', 'Vector': np.array([1, 2, 2]), 'URL': 'https://example.com/b'},
+    {'Company': 'C社', 'Value': 'バランス重視', 'Vector': np.array([0, 0, 0]), 'URL': 'https://example.com/c'},
+]
+
+# スコア計算
+def calc_score(user, company):
+    return 1 / (1 + np.linalg.norm(user - company))
+
+for item in company_data:
+    item['Score'] = round(calc_score(user_vector, item['Vector']), 3)
+
+df = pd.DataFrame(company_data)
+df_sorted = df.sort_values(by='Score', ascending=False)
+
+st.subheader("🧩 あなたに合いそうな企業ランキング")
+st.dataframe(df_sorted[['Company', 'Value', 'Score', 'URL']], use_container_width=True)
+
+
 st.subheader("🔍 あなたの志向性を教えてください")
 
 # 選択肢の定義（左から右へ行くほど右寄りの志向）
@@ -26,26 +47,6 @@ user_vector = np.array([
     scale_map[q2],
     scale_map[q3],
 ])
-
-# 企業の仮データ
-company_data = [
-    {'Company': 'A社', 'Value': '本質と静けさを重視', 'Vector': np.array([-1, -2, -2]), 'URL': 'https://example.com/a'},
-    {'Company': 'B社', 'Value': 'スピードと活気', 'Vector': np.array([1, 2, 2]), 'URL': 'https://example.com/b'},
-    {'Company': 'C社', 'Value': 'バランス重視', 'Vector': np.array([0, 0, 0]), 'URL': 'https://example.com/c'},
-]
-
-# スコア計算
-def calc_score(user, company):
-    return 1 / (1 + np.linalg.norm(user - company))
-
-for item in company_data:
-    item['Score'] = round(calc_score(user_vector, item['Vector']), 3)
-
-df = pd.DataFrame(company_data)
-df_sorted = df.sort_values(by='Score', ascending=False)
-
-st.subheader("🧩 あなたに合いそうな企業ランキング")
-st.dataframe(df_sorted[['Company', 'Value', 'Score', 'URL']], use_container_width=True)
 
 # Stripeの支払いリンク
 payment_url = 'https://buy.stripe.com/28E4gzevx5YV2Lv1VeeZ201'
