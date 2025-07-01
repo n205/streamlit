@@ -3,53 +3,47 @@ import pandas as pd
 import numpy as np
 
 st.set_page_config(page_title="Value Matching App", layout="wide")
-st.title("🎯 あなたの志向性に合う企業は？")
+st.title("🧭 価値観マッチング：あなたに合う企業は？")
 
-st.subheader("🔍 以下の質問に直感でお答えください")
+st.subheader("🔍 あなたの志向性を教えてください")
 
-# ラベルと内部スコアの対応
-options = {
-    'かなり自由裁量': -2,
-    'やや自由裁量': -1,
-    '中立': 0,
-    'やや明確ルール': 1,
-    'かなり明確ルール': 2
-}
-# 共通のラベルリスト
-labels = list(options.keys())
+# 選択肢の定義（左から右へ行くほど右寄りの志向）
+scale = ['強くA寄り', 'ややA寄り', '中立', 'ややB寄り', '強くB寄り']
 
-# 各質問ごとのスライダー
-q1_label = st.select_slider('① 自由な裁量 ←→ 明確なルール', options=labels, value='中立')
-q2_label = st.select_slider('② 静かな環境 ←→ 活気ある環境', options=labels, value='中立')
-q3_label = st.select_slider('③ 本質重視 ←→ スピード重視', options=labels, value='中立')
+q1 = st.select_slider('① 自由な裁量  ←→  明確なルール', options=scale, value='中立')
+q2 = st.select_slider('② 静かな環境  ←→  活気ある環境', options=scale, value='中立')
+q3 = st.select_slider('③ 本質重視  ←→  スピード重視', options=scale, value='中立')
 
-# 数値に変換
+# スライダーを数値に変換（-2〜+2）
+scale_map = {'強くA寄り': -2, 'ややA寄り': -1, '中立': 0, 'ややB寄り': 1, '強くB寄り': 2}
 user_vector = np.array([
-    options[q1_label],
-    options[q2_label],
-    options[q3_label],
+    scale_map[q1],
+    scale_map[q2],
+    scale_map[q3],
 ])
 
-# ダミー企業データ（ベクトル）
+# 企業の仮データ
 company_data = [
     {'Company': 'A社', 'Value': '本質と静けさを重視', 'Vector': np.array([-1, -2, -2]), 'URL': 'https://example.com/a'},
     {'Company': 'B社', 'Value': 'スピードと活気', 'Vector': np.array([1, 2, 2]), 'URL': 'https://example.com/b'},
     {'Company': 'C社', 'Value': 'バランス重視', 'Vector': np.array([0, 0, 0]), 'URL': 'https://example.com/c'},
 ]
 
-# スコア算出（ユークリッド距離ベース）
+# スコア計算
 def calc_score(user, company):
     return 1 / (1 + np.linalg.norm(user - company))
 
 for item in company_data:
     item['Score'] = round(calc_score(user_vector, item['Vector']), 3)
 
-df = pd.DataFrame(company_data).sort_values(by='Score', ascending=False)
+df = pd.DataFrame(company_data)
+df_sorted = df.sort_values(by='Score', ascending=False)
 
-st.subheader('🔎 マッチ度ランキング')
-st.dataframe(df[['Company', 'Value', 'Score', 'URL']], use_container_width=True)
+st.subheader("🧩 あなたに合いそうな企業ランキング")
+st.dataframe(df_sorted[['Company', 'Value', 'Score', 'URL']], use_container_width=True)
 
-# Stripe購入リンク
+# Stripeの支払いリンク
 payment_url = 'https://buy.stripe.com/28E4gzevx5YV2Lv1VeeZ201'
+
 if st.button('📄 このレポートを500円で購入する'):
     st.markdown(f'[こちらをクリックして決済ページへ移動]({payment_url})', unsafe_allow_html=True)
