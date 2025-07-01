@@ -1,94 +1,57 @@
 import streamlit as st
 import pandas as pd
 
-st.set_page_config(page_title="Value Matching", layout="wide")
+st.set_page_config(page_title="価値観マッチング", layout="wide")
+st.title("🎯 価値観マッチング診断")
 
-st.title("🔍 あなたの価値観に合う企業を探す")
-
-# --- ユーザーの選択を保持するセッション変数 ---
-if 'selections' not in st.session_state:
-    st.session_state.selections = {
-        'q1': None,
-        'q2': None,
-        'q3': None
-    }
-
-# --- 質問リスト ---
+# 質問と選択肢
 questions = {
-    'q1': {
-        'text': '働く上で最も大切にしたいことは？',
-        'choices': ['自由と裁量', '安定と明確なルール', '社会的意義と貢献']
-    },
-    'q2': {
-        'text': 'チーム内でのあなたの役割は？',
-        'choices': ['静かに観察する', '分析して判断する', '空気を変える']
-    },
-    'q3': {
-        'text': '理想の職場環境は？',
-        'choices': ['一人で集中できる', '仲間と話せる', '刺激が多い']
-    }
+    "Q1. 働く上でどちらを重視しますか？": ["安定", "変化"],
+    "Q2. 人と働くときに重視するのは？": ["協調性", "成果主義"],
+    "Q3. 理想の働き方は？": ["専門特化", "多様な経験"],
 }
 
-# --- 選択肢の表示と記録 ---
-st.subheader("📌 あなたの価値観を選んでください（最大3つ）")
-for q_key, q_data in questions.items():
-    st.session_state.selections[q_key] = st.radio(
-        label=q_data['text'],
-        options=q_data['choices'],
-        index=None,
-        key=q_key
+answers = {}
+
+# スライダーで回答
+for q, (left, right) in questions.items():
+    st.markdown(f"**{q}**")
+    choice = st.select_slider(
+        label='',
+        options=[left, f"{left}寄り", "中間", f"{right}寄り", right],
+        value="中間",
+        key=q
     )
+    answers[q] = choice
+    st.write("あなたの選択:", choice)
+    st.divider()
 
-# --- 仮のスコア算出ロジック（選択内容でスコアを変える） ---
-def compute_scores(selections):
-    base_data = [
-        {"Company": "A社", "Value": "誠実さと創造性", "Base": 0.6},
-        {"Company": "B社", "Value": "スピードと結果", "Base": 0.5},
-        {"Company": "C社", "Value": "協働と尊重", "Base": 0.4},
-    ]
+# ダミー企業データ（回答によってスコア変化させる）
+dummy_data = pd.DataFrame([
+    {"Company": "A社", "Value": "変化×成果", "Score": 0.75},
+    {"Company": "B社", "Value": "安定×協調", "Score": 0.80},
+    {"Company": "C社", "Value": "専門×成果", "Score": 0.65},
+])
 
-    # 仮の重み付け（選択によりBaseスコアを加算）
-    weights = {
-        '自由と裁量': ('A社', 0.2),
-        '安定と明確なルール': ('B社', 0.2),
-        '社会的意義と貢献': ('C社', 0.2),
-        '静かに観察する': ('C社', 0.1),
-        '分析して判断する': ('B社', 0.1),
-        '空気を変える': ('A社', 0.1),
-        '一人で集中できる': ('A社', 0.1),
-        '仲間と話せる': ('C社', 0.1),
-        '刺激が多い': ('B社', 0.1),
-    }
+# スコアに仮ロジック（例：選択肢ごとにスコア加算）
+score_adjust = {
+    "安定": {"B社": 0.05},
+    "変化": {"A社": 0.05},
+    "成果主義": {"A社": 0.05, "C社": 0.03},
+    "協調性": {"B社": 0.05},
+    "専門特化": {"C社": 0.05},
+    "多様な経験": {"A社": 0.03},
+}
 
-    scores = {}
-    for entry in base_data:
-        scores[entry['Company']] = entry['Base']
+for q, choice in answers.items():
+    base = choice.replace("寄り", "").replace("中間", "")
+    for company, delta in score_adjust.get(base, {}).items():
+        dummy_data.loc[dummy_data["Company"] == company, "Score"] += delta
 
-    for val in selections.values():
-        if val and val in weights:
-            target, bonus = weights[val]
-            scores[target] += bonus
+st.subheader("🔍 あなたに合う企業ランキング")
+st.dataframe(dummy_data.sort_values("Score", ascending=False), use_container_width=True)
 
-    df = pd.DataFrame([
-        {
-            "Company": c['Company'],
-            "Value": c['Value'],
-            "Score": round(scores[c['Company']], 2),
-            "URL": f"https://example.com/{c['Company']}"
-        }
-        for c in base_data
-    ])
-    return df
-
-# --- スコア表示 ---
-if any(st.session_state.selections.values()):
-    df = compute_scores(st.session_state.selections)
-    st.subheader("🏆 マッチングスコア")
-    st.dataframe(df.sort_values("Score", ascending=False), use_container_width=True)
-
-    # Stripeリンク（例）
-    payment_url = 'https://buy.stripe.com/28E4gzevx5YV2Lv1VeeZ201'
-    if st.button('📄 500円でレポートを購入する'):
-        st.markdown(f'[決済ページへ移動]({payment_url})', unsafe_allow_html=True)
-else:
-    st.info("🔄 質問に1つ以上答えると、マッチング結果が表示されます")
+# Stripe購入リンク
+payment_url = 'https://buy.stripe.com/28E4gzevx5YV2Lv1VeeZ201'
+if st.button('📄 500円でレポートを購入する'):
+    st.markdown(f'[👉 購入ページに進む]({payment_url})', unsafe_allow_html=True)
