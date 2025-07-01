@@ -1,57 +1,26 @@
 import streamlit as st
-import pandas as pd
 
-st.set_page_config(page_title="価値観マッチング", layout="wide")
-st.title("🎯 価値観マッチング診断")
+st.title('🔍 あなたの価値観に合う企業を探す')
 
-# 質問と選択肢
-questions = {
-    "Q1. 働く上でどちらを重視しますか？": ["安定", "変化"],
-    "Q2. 人と働くときに重視するのは？": ["協調性", "成果主義"],
-    "Q3. 理想の働き方は？": ["専門特化", "多様な経験"],
-}
-
+# 回答保存用
 answers = {}
 
-# スライダーで回答
-for q, (left, right) in questions.items():
-    st.markdown(f"**{q}**")
-    choice = st.select_slider(
-        label='',
-        options=[left, f"{left}寄り", "中間", f"{right}寄り", right],
-        value="中間",
-        key=q
-    )
-    answers[q] = choice
-    st.write("あなたの選択:", choice)
-    st.divider()
+st.subheader('📌 働く上で最も大切にしたいことは？')
+answers['q1'] = st.radio('',
+    ['⬅️ 自由と裁量', '🟰 中間', '➡️ 安定と明確なルール'],
+    horizontal=True)
 
-# ダミー企業データ（回答によってスコア変化させる）
-dummy_data = pd.DataFrame([
-    {"Company": "A社", "Value": "変化×成果", "Score": 0.75},
-    {"Company": "B社", "Value": "安定×協調", "Score": 0.80},
-    {"Company": "C社", "Value": "専門×成果", "Score": 0.65},
-])
+st.subheader('🤝 チーム内でのあなたの役割は？')
+answers['q2'] = st.radio('',
+    ['⬅️ 静かに観察する', '🟰 中間', '➡️ 空気を変える'],
+    horizontal=True)
 
-# スコアに仮ロジック（例：選択肢ごとにスコア加算）
-score_adjust = {
-    "安定": {"B社": 0.05},
-    "変化": {"A社": 0.05},
-    "成果主義": {"A社": 0.05, "C社": 0.03},
-    "協調性": {"B社": 0.05},
-    "専門特化": {"C社": 0.05},
-    "多様な経験": {"A社": 0.03},
-}
+st.subheader('🏢 理想の職場環境は？')
+answers['q3'] = st.radio('',
+    ['⬅️ 一人で集中できる', '🟰 中間', '➡️ 刺激が多い'],
+    horizontal=True)
 
-for q, choice in answers.items():
-    base = choice.replace("寄り", "").replace("中間", "")
-    for company, delta in score_adjust.get(base, {}).items():
-        dummy_data.loc[dummy_data["Company"] == company, "Score"] += delta
-
-st.subheader("🔍 あなたに合う企業ランキング")
-st.dataframe(dummy_data.sort_values("Score", ascending=False), use_container_width=True)
-
-# Stripe購入リンク
-payment_url = 'https://buy.stripe.com/28E4gzevx5YV2Lv1VeeZ201'
-if st.button('📄 500円でレポートを購入する'):
-    st.markdown(f'[👉 購入ページに進む]({payment_url})', unsafe_allow_html=True)
+# 回答に基づいたダミースコアを表示（ここにロジックを追加予定）
+if any(answers.values()):
+    st.subheader('📊 仮のマッチング結果')
+    st.write('（ここに企業スコアを動的に表示予定）')
