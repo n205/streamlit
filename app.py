@@ -11,7 +11,7 @@ st.subheader("🔍 あなたの志向性を教えてください")
 scale = ['強くA寄り', 'ややA寄り', '中立', 'ややB寄り', '強くB寄り']
 
 def centered_slider(label):
-    left, center, right = st.columns([1, 3, 1])
+    left, center, right = st.columns([1, 2, 1])
     with center:
         return st.select_slider(label, options=scale, value='中立')
 
