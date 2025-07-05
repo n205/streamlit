@@ -54,9 +54,9 @@ if st.session_state['page'] == 'intro':
 
     cols = st.columns([7, 1, 7])
     with cols[1]:
-        if st.button('もっと見る'):
-            st.session_state['user_vector'] = user_vector.tolist()
-            st.session_state['page'] = 'detail'
+        if st.button('もっと見る', key='show_more'):
+            st.session_state.page = 'detail'
+            st.experimental_rerun()  # ← 即時再実行で1回で反映
 
 # -------------------------------
 # ページ2: 詳細マッチング + 思想
