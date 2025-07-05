@@ -55,7 +55,7 @@ if st.session_state['page'] == 'intro':
     if st.button('🔽 もっと見る'):
         st.session_state['user_vector'] = user_vector.tolist()  # 次画面へ引き継ぎ
         st.session_state['page'] = 'detail'
-        st.experimental_rerun()
+        #st.experimental_rerun()
 
 # -------------------------------
 # ページ2: 詳細マッチング + 思想
