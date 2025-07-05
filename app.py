@@ -52,10 +52,11 @@ if st.session_state['page'] == 'intro':
     # 上位3社のみ表示
     score_placeholder.dataframe(df[['Company', 'Value', 'Score', 'URL']].head(3), use_container_width=True)
 
-    if st.button('🔽 もっと見る'):
-        st.session_state['user_vector'] = user_vector.tolist()  # 次画面へ引き継ぎ
-        st.session_state['page'] = 'detail'
-        #st.experimental_rerun()
+    cols = st.columns([1, 2, 1])
+    with cols[1]:
+        if st.button('🔽 もっと見る'):
+            st.session_state['user_vector'] = user_vector.tolist()
+            st.session_state['page'] = 'detail'
 
 # -------------------------------
 # ページ2: 詳細マッチング + 思想
