@@ -13,7 +13,7 @@ if 'show_explanation' not in st.session_state:
     st.session_state['show_explanation'] = False
 
 # ---------------------------
-# サンプルデータ（仮）
+# サンプルデータ
 # ---------------------------
 company_data = [
     {'Company': 'A社', 'Value': '本質と静けさを重視', 'Vector': np.array([-1, -2, -2]), 'URL': 'https://example.com/a'},
@@ -25,7 +25,7 @@ company_data = [
 ]
 
 # ---------------------------
-# 志向性入力
+# 志向性スライダー設定（定義だけ）
 # ---------------------------
 scale = ['強くA寄り', 'ややA寄り', '中立', 'ややB寄り', '強くB寄り']
 scale_map = {'強くA寄り': -2, 'ややA寄り': -1, '中立': 0, 'ややB寄り': 1, '強くB寄り': 2}
@@ -35,9 +35,20 @@ def centered_slider(label):
     with center:
         return st.select_slider(label, options=scale, value='中立')
 
-q1 = centered_slider('① 自由な裁量  ←→  明確なルール')
-q2 = centered_slider('② 静かな環境  ←→  活気ある環境')
-q3 = centered_slider('③ 本質重視  ←→  スピード重視')
+# ---------------------------
+# ヘッダーとタイトル（最上部）
+# ---------------------------
+st.title("🧭 価値観マッチング：あなたに合う企業は？")
+st.subheader("🧩 あなたに合いそうな企業ランキング")
+
+# ---------------------------
+# ランキングのためのスライダーをこの時点で取得
+# 位置を下にしたいので、変数だけ取得しておく
+# ---------------------------
+with st.expander("👇 志向性を入力してマッチ度を調整する"):
+    q1 = centered_slider('① 自由な裁量  ←→  明確なルール')
+    q2 = centered_slider('② 静かな環境  ←→  活気ある環境')
+    q3 = centered_slider('③ 本質重視  ←→  スピード重視')
 
 user_vector = np.array([
     scale_map[q1],
@@ -46,7 +57,7 @@ user_vector = np.array([
 ])
 
 # ---------------------------
-# スコア計算とソート
+# スコア計算
 # ---------------------------
 def calc_score(user, company):
     return 1 / (1 + np.linalg.norm(user - company))
@@ -58,17 +69,8 @@ df = pd.DataFrame(company_data)
 df_sorted = df.sort_values(by='Score', ascending=False)
 
 # ---------------------------
-# ランキング表示（画面の最上部に移動）
+# ランキング表示
 # ---------------------------
-st.title("🧭 価値観マッチング：あなたに合う企業は？")
-st.subheader("🧩 あなたに合いそうな企業ランキング")
-
-# 「もっと見る」ボタン押下で説明表示フラグ変更
-if st.session_state['num_display'] < len(df_sorted) and not st.session_state['show_explanation']:
-    if st.button('🔽 もっと見る（+3社）'):
-        st.session_state['show_explanation'] = True
-
-# 説明スライド
 if st.session_state['show_explanation']:
     st.markdown("""
     ---
@@ -89,19 +91,16 @@ if st.session_state['show_explanation']:
     if st.button('🔓 続きを見る（あと3社表示）'):
         st.session_state['num_display'] += 3
         st.session_state['show_explanation'] = False
+else:
+    if st.session_state['num_display'] < len(df_sorted):
+        if st.button('🔽 もっと見る（+3社）'):
+            st.session_state['show_explanation'] = True
 
-# 表示更新
 df_display = df_sorted.head(st.session_state['num_display'])
 st.dataframe(df_display[['Company', 'Value', 'Score', 'URL']], use_container_width=True)
 
 # ---------------------------
-# 志向性入力セクション（画面下部に維持）
-# ---------------------------
-st.subheader("🔍 あなたの志向性を教えてください")
-st.caption("※ スライダーを調整するとランキングが即時更新されます")
-
-# ---------------------------
-# 支払いリンク
+# 支払いリンク（下部）
 # ---------------------------
 payment_url = 'https://buy.stripe.com/28E4gzevx5YV2Lv1VeeZ201'
 if st.button('📄 このレポートを500円で購入する'):
