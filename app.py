@@ -54,7 +54,7 @@ if st.session_state['page'] == 'intro':
 
     cols = st.columns([6, 1, 6])
     with cols[1]:
-        if st.button('🔽もっと見る'):
+        if st.button('もっと見る'):
             st.session_state['user_vector'] = user_vector.tolist()
             st.session_state['page'] = 'detail'
 
