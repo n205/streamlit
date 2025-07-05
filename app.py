@@ -6,6 +6,7 @@ import numpy as np
 if 'page' not in st.session_state:
     st.session_state['page'] = 'intro'
 
+
 # 志向性のスケール定義
 scale = ['強くA寄り', 'ややA寄り', '中立', 'ややB寄り', '強くB寄り']
 scale_map = {'強くA寄り': -2, 'ややA寄り': -1, '中立': 0, 'ややB寄り': 1, '強くB寄り': 2}
